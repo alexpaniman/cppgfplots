@@ -103,7 +103,19 @@ plane.generate_image("figures/graph-4.png");
 
 * Installation and Building
 
-You need to have =texlive= installed (including =pdflatex= and ams packages), and then you just place the header in your project (for now it's a header only library), or you can install it system-wide by copying it to =/usr/local/include/= like so:
+You need to have =glm= library install system-wide (so that any =.cpp= program can =#include <glm/glm.hpp>=). If you are using =Arch Linux=, you can install it like so (for other linux distributives it should be similar):
+
+#+begin_src sh
+sudo pacman -S glm
+#+end_src
+
+And you should have =texlive= installed (including =pdflatex= and ams packages). You could go for a smaller install or install just install whole tex (which is not small, I gotta say), but that's what I did, so it is likely to work:
+
+#+begin_src sh
+sudo pacman -S texlive-full
+#+end_src
+
+And then you just place the header in your project (for now it's a header only library), or you can install it system-wide by copying it to =/usr/local/include/= like so:
 
 #+begin_src sh
 git clone https://github.com/alexpaniman/cppgfplots.git
