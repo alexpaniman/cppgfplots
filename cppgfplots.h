@@ -237,11 +237,16 @@ struct plotting_plane {
     // Height can be customized via this variable:
     const char *height = "5cm";
 
+    // Background and foreground used for plane: 
+
+    const char* fg = NULL;
+    const char* bg = NULL;
+
     // Width will be decided depending on page's width:
     void draw(FILE *stream, const char *width = "\\textwidth") const;
 
-    void generate_image(std::string output_file_name = "img.png",
-        const char* width = "17cm", const char *border = "2cm", int dpi = 512);
+    std::string generate_image(std::string output_file_name = "img.png",
+                               const char *width = "17cm", const char *border = "2cm", int dpi = 512);
 
     ~plotting_plane() {
         if (should_draw_on_destruction) {
@@ -500,8 +505,7 @@ static bool ends_with(const std::string& str, const std::string& suffix) {
     return str.size() >= suffix.size() && 0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
 }
 
-inline void plotting_plane::generate_image(std::string output_file_name,
-const char* width, const char *border, int dpi) {
+inline std::string plotting_plane::generate_image(std::string output_file_name, const char* width, const char *border, int dpi) {
     std::filesystem::path path = output_file_name;
     if (!path.parent_path().empty() && !std::filesystem::exists(path.parent_path()))
         execute("mkdir", ".", path.parent_path().c_str());
@@ -525,8 +529,24 @@ const char* width, const char *border, int dpi) {
                                                                                "\n"
             "\\pgfplotsset{compat=1.18}"                                       "\n"
                                                                                "\n"
+    );
+
+    if (fg)
+        fprintf(image_tex_stream, "\\definecolor{fg}{rgb}{%s}\n", fg);
+
+    if (bg)
+        fprintf(image_tex_stream, "\\definecolor{bg}{rgb}{%s}\n", bg);
+
+
+    fprintf(image_tex_stream,
             "\\begin{document}"                                                "\n"
     );
+
+    if (bg)
+        fprintf(image_tex_stream, "\\pagecolor{bg}\n", bg);
+
+    if (fg)
+        fprintf(image_tex_stream, "\\color{fg}\n", bg);
 
     this->draw(image_tex_stream, width);
 
@@ -549,6 +569,8 @@ const char* width, const char *border, int dpi) {
         execute("convert", ".", "-density",
                 std::to_string(dpi).c_str(), image_pdf.c_str(), output_file_name.c_str());
     }
+
+    return output_file_name;
 };
 
 
