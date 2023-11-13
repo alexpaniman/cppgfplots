@@ -1,0 +1,115 @@
+#+TITLE: CpPGFplots :: simple yet beautiful plotting in C++
+#+AUTHOR: alexpaniman
+
+
+CpPGFplots is a library that aims to make plotting: consistent and easy in C++. It uses pgfplots backend to produce images, wrapping it's syntax with a powerful programming language and choosing defaults that produce good-looking graphs as frequently as possible (and tries to be smart about it when possible). It's also developed with Emacs' org mode in mind and tries to make embedding plots there as easy as possible (in fact, look at [[file:orgmode-showcase.org]] file and see for yourself.
+
+I mainly developed it for personal use, so beware bugs, inconsistencies you may encounter.
+
+* Showcase
+
+To plot a simple $cos(x)$ you just need to use =function= and specify range. Library will automatically determine necessary amount of samples and output latex code you can embed in your article (only requirement is =\usepackage{pgfplots}=, but that's obvious).
+
+#+begin_src cpp :results none :exports code
+plotting_plane plane =  function(cos(x), { -15, 15 });
+plane.generate_image("figures/graph-0.png");
+#+end_src
+
+[[file:figures/graph-0.png]]
+
+
+A little more elaborate example showcases multiple graphs on single plane, labels and legend:
+
+#+begin_src cpp :results none :exports code
+auto plot_sin = function(sin(x),    { -15, 15 });
+plot_sin.name = "$\\sin \\left ( x \\right )$";
+
+auto plot_cos = function(cos(10*x), { -15, 15 });
+plot_cos.name = "$\\cos \\left ( 10 x \\right )$";
+
+plotting_plane plane = plot_sin + plot_cos;
+plane.name = "Showcase of multiple graphs on single plane";
+
+auto &[x_axis, y_axis] = plane.axes;
+x_axis.label = "$x$";
+y_axis.label = "$f(x)$";
+
+plane.generate_image("figures/graph-1.png");
+#+end_src
+
+[[file:figures/graph-1.png]]
+
+
+There are, of course, a large number of parameters you can tweak to get different results, let's, for example, see sampled points in on this graph (there are so much, it just looks like a thicker plot):
+
+#+begin_src cpp :results none :exports code
+auto parabola = function(x*x, { - 20, 20 });
+parabola.mark_size = 0.5; // Enable marks
+
+plotting_plane plane("This is a parabola with sample points ($x^2$)");
+plane + parabola;
+
+plane.generate_image("figures/graph-2.png");
+#+end_src
+
+[[file:figures/graph-2.png]]
+
+
+This graph showcases plotting from points and a new interpolation mode (before that we only built plots with segments), here it's interpolated smoothly, hence the name:
+
+#+begin_src cpp :results none :exports code
+auto current_plot = points(
+    { -1,  2 },
+    {  3, 11 },
+    {  5,  9 },
+    {  6,  8 },
+    {  9,  9 }
+);
+
+current_plot.interpolate = SMOOTH;
+
+
+plotting_plane plane = current_plot;
+plane.generate_image("figures/graph-3.png");
+#+end_src
+
+[[file:figures/graph-3.png]]
+
+
+And, having all of C++ around, you can do lots of things you wouldn't be able to do in pure pgfplots (or, it would be harder, at lease). Let's, for example, build a progression of fibonacci numbers:
+
+#+begin_src cpp :results none :exports code
+std::vector<vec2> points;
+
+auto fib = [](auto &&recursive, int x) {
+    if (x == 0 || x == 1)
+        return 1;
+
+    return recursive(recursive, x - 1) + recursive(recursive, x - 2);
+};
+
+for (int i = 0; i < 30; ++ i)
+    points.emplace_back(i, fib(fib, i));
+
+plot current_plot { points };
+current_plot.interpolate = NONE;
+
+plotting_plane plane = current_plot;
+plane.generate_image("figures/graph-4.png");
+#+end_src
+
+[[file:figures/graph-4.png]]
+
+
+* Installation and Building
+
+You need to have =texlive= installed (including =pdflatex= and ams packages), and then you just place the header in your project (for now it's a header only library), or you can install it system-wide by copying it to =/usr/local/include/= like so:
+
+#+begin_src sh
+git clone https://github.com/alexpaniman/cppgfplots.git
+
+cd cppgfplots
+sudo cp cppgfplots/cppgfplots.h /usr/local/include/
+#+end_src
+
+Note you have to compile it with C++20 or later enabled as it uses some new features.
