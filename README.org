@@ -2,13 +2,13 @@
 #+AUTHOR: alexpaniman
 
 
-CpPGFplots is a library that aims to make plotting: consistent and easy in C++. It uses pgfplots backend to produce images, wrapping it's syntax with a powerful programming language and choosing defaults that produce good-looking graphs as frequently as possible (and tries to be smart about it when possible). It's also developed with Emacs' org mode in mind and tries to make embedding plots there as easy as possible (in fact, look at [[file:orgmode-showcase.org]] file and see for yourself.
+CpPGFplots is a library that aims to make plotting: consistent and easy in C++. It uses pgfplots backend to produce images, wrapping it's syntax with a powerful programming language and choosing defaults that produce good-looking graphs as frequently as possible (and tries to be smart about it when possible). It's also developed with Emacs' org mode in mind and tries to make embedding plots there as easy as possible (in fact, look at [[file:orgmode-showcase.org]] file and see for yourself).
 
 I mainly developed it for personal use, so beware bugs, inconsistencies you may encounter.
 
 * Showcase
 
-To plot a simple $cos(x)$ you just need to use =function= and specify range. Library will automatically determine necessary amount of samples and output latex code you can embed in your article (only requirement is =\usepackage{pgfplots}=, but that's obvious).
+To plot a simple $cos(x)$ you just need to use =function= and specify range. Library will automatically determine necessary amount of samples and output latex code you can embed in your article (only requirement for your latex is to use =pgfplots=, but that's obvious).
 
 #+begin_src cpp :results none :exports code
 plotting_plane plane = function(cos(x), { -15, 15 });
